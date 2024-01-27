@@ -1,5 +1,11 @@
 # ip2location-sync
-Ip2Location database sync package for Laravel apps. This package is designed for `DB3LITEBIN` databases.
+Ip2Location database sync package for Laravel apps. This package is designed for `DB3LITECSV` and it requires a database to store the data.
+
+## Differences between `docker-ip2location-mysql` and this package
+
+- The official docker image [docker-ip2location-mysql](https://github.com/ip2location/docker-ip2location-mysql) provides a database with the data. However, it is not suitable for production use because it is not updated frequently. This package is designed to sync the data from Ip2Location server to your database and it provides to custom sync interval with your needs. Just define in you schedule task and it will do the rest.
+- This package is designed for simple use and high performance. It is not designed for complex use cases. If you need more features, please use the official docker image.
+- Sometimes the official docker image causes a quota exceeded error. This may break your application. This package uses a cache to prevent this error.
 
 ### Environment Variables
 
