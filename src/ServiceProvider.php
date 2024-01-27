@@ -1,4 +1,5 @@
 <?php
+
 namespace DragAndPublish\Ip2locationSync;
 
 use Illuminate\Routing\Router;
@@ -15,7 +16,8 @@ final class ServiceProvider extends BaseServiceProvider
     public function boot(Router $router): void
     {
         $this->bootPublishes();
-                 $this->loadRoutes();    }
+        $this->loadRoutes();
+    }
 
     /**
      * Register any application services
@@ -37,14 +39,17 @@ final class ServiceProvider extends BaseServiceProvider
         $this->publishes([
             __DIR__ . '/../config/ip2location-sync.php' => $this->app->configPath('ip2location-sync.php'),
         ], 'ip2location-sync-config');
-         // migrations
+
+        // migrations
         $migrationsPath = __DIR__ . '/../database/migrations/';
 
         $this->publishes([
             $migrationsPath => database_path('migrations/drag-and-publish/ip2location-sync')
         ], 'ip2location-sync-migrations');
 
-        $this->loadMigrationsFrom($migrationsPath);    }
+        $this->loadMigrationsFrom($migrationsPath);
+    }
+
     /**
      * Load package specific routes
      *
@@ -53,6 +58,5 @@ final class ServiceProvider extends BaseServiceProvider
     private function loadRoutes(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
     }
 }
