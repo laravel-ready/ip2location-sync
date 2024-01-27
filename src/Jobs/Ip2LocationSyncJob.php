@@ -6,8 +6,10 @@ use ZipArchive;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use DragAndPublish\Ip2locationSync\Models\Ip2LocationSync;
@@ -66,31 +68,31 @@ class Ip2LocationSyncJob implements ShouldQueue
             return;
         }
 
-        DB::connection('ip2location')
-            ->table('ip2location_database_tmp')
-            ->truncate()
-            
+        try {
+            DB::connection('ip2location')->statement('DROP TABLE IF EXISTS ip2location_database_tmp');
+        } catch (\Exception $e) {
+            throw new \Exception('Error dropping ip2location_database_tmp table: ' . $e->getMessage());
+        }
 
-        echo $csvFiles[0];
+        try {
+            Schema::connection('ip2location')->create('ip2location_database_tmp', function (Blueprint $table) {
+                $table->id();
 
-        // get first csv file
-        // $csvFilePath = $csvFiles[0];
+                $table->decimal('ip_from', 39, 0);
+                $table->decimal('ip_to', 39, 0);
+                $table->string('country_code', 2);
+                $table->string('country_name', 64);
+                $table->string('region_name', 128);
+                $table->string('city_name', 128);
+                $table->double('latitude')->nullable(true)->default(null);
+                $table->double('longitude')->nullable(true)->default(null);
+                $table->string('zip_code', 30);
+                $table->string('time_zone', 8);
 
-        // $file = fopen($csvFilePath, 'r');
-
-        // $rows = [];
-
-        // while (($data = fgetcsv($file, 1000, ',')) !== false) {
-        //     $rows[] = [
-        //         'ip_from' => $data[0],
-        //         'ip_to' => $data[1],
-        //         'country_code' => $data[2],
-        //         'city_name' => $data[5],
-        //     ];
-        // }
-
-        // fclose($file);
-
-        ray(count($rows));
+                $table->timestamps();
+            });
+        } catch (\Exception $e) {
+            throw new \Exception('Error creating ip2location_database_tmp table: ' . $e->getMessage());
+        }
     }
 }
