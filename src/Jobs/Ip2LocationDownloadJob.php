@@ -3,8 +3,10 @@
 namespace DragAndPublish\Ip2locationSync\Jobs;
 
 use Exception;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
@@ -12,8 +14,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use DragAndPublish\Ip2locationSync\Models\Ip2LocationSync;
-use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Log;
 
 class Ip2LocationDownloadJob implements ShouldQueue
 {
@@ -63,8 +63,7 @@ class Ip2LocationDownloadJob implements ShouldQueue
             return;
         }
 
-        $client = new Client();
-        $response = $client->get($this->downloadUrl);
+        $response = Http::get($this->downloadUrl);
         $fileContent = $response->getBody()->getContents();
 
         Storage::disk('ip2location_sync')->put($fileName, $fileContent);
