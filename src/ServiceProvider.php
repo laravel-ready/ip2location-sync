@@ -2,6 +2,7 @@
 
 namespace DragAndPublish\Ip2locationSync;
 
+use PDO;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
@@ -74,6 +75,10 @@ final class ServiceProvider extends BaseServiceProvider
             'database' => Config::get('statistics.ip2location.database.database'),
             'username' => Config::get('statistics.ip2location.database.username'),
             'password' => Config::get('statistics.ip2location.database.password'),
+            'options' => [
+                PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+                PDO::ATTR_EMULATE_PREPARES => true,
+            ],
         ]);
     }
 

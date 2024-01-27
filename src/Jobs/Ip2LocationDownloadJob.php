@@ -5,7 +5,6 @@ namespace DragAndPublish\Ip2locationSync\Jobs;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
@@ -27,8 +26,6 @@ class Ip2LocationDownloadJob implements ShouldQueue
     public function __construct()
     {
         $token = Config::get('ip2location-sync.token');
-
-        Log::info('IP2Location token: ' . $token);
 
         if (empty($token)) {
             throw new Exception('IP2Location token is not set.');

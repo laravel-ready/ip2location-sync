@@ -2,6 +2,8 @@
 
 namespace DragAndPublish\Ip2locationSync\Jobs;
 
+use PDO;
+use Exception;
 use ZipArchive;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -68,16 +70,16 @@ class Ip2LocationSyncJob implements ShouldQueue
             return;
         }
 
+        // drop tmp table
         try {
             DB::connection('ip2location')->statement('DROP TABLE IF EXISTS ip2location_database_tmp');
-        } catch (\Exception $e) {
-            throw new \Exception('Error dropping ip2location_database_tmp table: ' . $e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception('Error dropping ip2location_database_tmp table: ' . $e->getMessage());
         }
 
+        // recreate tmp table
         try {
             Schema::connection('ip2location')->create('ip2location_database_tmp', function (Blueprint $table) {
-                $table->id();
-
                 $table->decimal('ip_from', 39, 0);
                 $table->decimal('ip_to', 39, 0);
                 $table->string('country_code', 2);
@@ -89,10 +91,49 @@ class Ip2LocationSyncJob implements ShouldQueue
                 $table->string('zip_code', 30);
                 $table->string('time_zone', 8);
 
+                // add indexes
+                $table->unique(['ip_from', 'ip_to'], 'ip_from_to_unique_index');
+
                 $table->timestamps();
             });
-        } catch (\Exception $e) {
-            throw new \Exception('Error creating ip2location_database_tmp table: ' . $e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception('Error creating ip2location_database_tmp table: ' . $e->getMessage());
+        }
+
+        try {
+            // set local_infile to true
+            DB::connection('ip2location')->statement('SET GLOBAL local_infile=1');
+            DB::connection('ip2location')->getPdo()->setAttribute(PDO::MYSQL_ATTR_LOCAL_INFILE, true);
+
+            // seed tmp database
+            DB::connection('ip2location')->statement("
+                LOAD DATA LOCAL INFILE '" . addslashes($csvFiles[0]) . "'
+                INTO TABLE ip2location_database_tmp
+                FIELDS TERMINATED BY ','
+                OPTIONALLY ENCLOSED BY '\"'
+                LINES TERMINATED BY '\\n'
+                IGNORE 0 LINES
+                (@ip_from, @ip_to, @country_code, @country_name, @region_name, @city_name, @latitude, @longitude, @zip_code, @time_zone)
+                SET
+                    ip_from = @ip_from,
+                    ip_to = @ip_to,
+                    country_code = @country_code,
+                    country_name = @country_name,
+                    region_name = @region_name,
+                    city_name = @city_name,
+                    latitude = @latitude,
+                    longitude = @longitude,
+                    zip_code = @zip_code,
+                    time_zone = @time_zone
+            ");
+
+            // drop old table
+            DB::connection('ip2location')->statement('DROP TABLE IF EXISTS ip2location_database');
+
+            // rename tmp table
+            DB::connection('ip2location')->statement('RENAME TABLE ip2location_database_tmp TO ip2location_database');
+        } catch (Exception $e) {
+            throw new Exception("ip2location seeding failed. Error:" . $e->getMessage());
         }
     }
 }
