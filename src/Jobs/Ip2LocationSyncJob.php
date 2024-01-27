@@ -132,6 +132,9 @@ class Ip2LocationSyncJob implements ShouldQueue
 
             // rename tmp table
             DB::connection('ip2location')->statement('RENAME TABLE ip2location_database_tmp TO ip2location_database');
+
+            $lastFile->sync_status = true;
+            $lastFile->save();
         } catch (Exception $e) {
             throw new Exception("ip2location seeding failed. Error:" . $e->getMessage());
         }
