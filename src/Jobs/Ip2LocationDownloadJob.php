@@ -34,7 +34,7 @@ class Ip2LocationDownloadJob implements ShouldQueue
             throw new Exception('IP2Location token is not set.');
         }
 
-        $dbCode = 'DB3LITEBIN';
+        $dbCode = 'DB3LITECSV';
 
         // empty = IPv4
         // IPV6 = IPv6
