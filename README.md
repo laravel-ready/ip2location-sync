@@ -13,6 +13,32 @@ Ip2Location database sync package for Laravel apps. This package is designed for
 composer require drag-and-publish/ip2location-sync
 ```
 
+## Usage
+
+Run required jobs in the console.
+
+```php
+<?php
+
+namespace App\Console;
+
+use DragAndPublish\Ip2locationSync\Jobs\Ip2LocationDownloadJob;
+use DragAndPublish\Ip2locationSync\Jobs\Ip2LocationSyncJob;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+class Kernel extends ConsoleKernel
+{
+    /**
+     * Define the application's command schedule.
+     */
+    protected function schedule(Schedule $schedule): void
+    {
+        $schedule->job(Ip2LocationDownloadJob::class)->dailyAt('00:00');
+        $schedule->job(Ip2LocationSyncJob::class)->dailyAt('00:00');
+    }
+}
+```
+
 ### Environment Variables
 
 Define your environment variables in the `.env` file.
