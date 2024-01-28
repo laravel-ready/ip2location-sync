@@ -17,7 +17,6 @@ final class ServiceProvider extends BaseServiceProvider
     public function boot(Router $router): void
     {
         $this->bootPublishes();
-        $this->loadRoutes();
 
         $this->setUpDatabaseConnection();
         $this->setUpStorageDisk();
@@ -54,16 +53,6 @@ final class ServiceProvider extends BaseServiceProvider
         ], 'ip2location-sync-migrations');
 
         $this->loadMigrationsFrom($migrationsPath);
-    }
-
-    /**
-     * Load package specific routes
-     *
-     * @return  void
-     */
-    private function loadRoutes(): void
-    {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
     }
 
     private function setUpDatabaseConnection(): void
