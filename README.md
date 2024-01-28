@@ -7,9 +7,15 @@ Ip2Location database sync package for Laravel apps. This package is designed for
 - It is not designed for complex use cases. If you need more features, please use the official docker image.
 - Sometimes the official docker image causes a quota exceeded error. This may break your application. This package uses a cache to prevent this error.
 
+## Installation
+
+```bash
+composer require drag-and-publish/ip2location-sync
+```
+
 ### Environment Variables
 
-Define your environment variables in the `.env` file
+Define your environment variables in the `.env` file.
 
 ```yml
 # ip2location
